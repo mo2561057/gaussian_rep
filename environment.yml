@@ -1,0 +1,31 @@
+name: gaussian-rep
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python >=3.11
+
+  # Conda
+  - anaconda-client
+  - conda-verify
+
+  # Package dependencies
+  - estimagic
+  - numpy
+  - scipy
+  - pandas
+  - statsmodels
+
+  # Misc
+  - jupyterlab
+  - matplotlib
+  - seaborn
+  - pdbpp
+  - pip
+  - pre-commit
+  - pytest
+  - pytest-cov
+  - scikit-learn
+  - tox-conda
+
