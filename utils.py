@@ -5,8 +5,8 @@ import math
 from typing import Callable, List
 
 def get_kronecker_function(
+    S: List[Callable[[float], np.ndarray]],
     W: List[Callable[[np.ndarray], np.ndarray]],
-    S: List[Callable[[np.float], np.ndarray]],
 ) -> callable:
     """
     Compute the Kronecker product of two vectors of functions and multiply by coefficients
@@ -21,8 +21,8 @@ def get_kronecker_function(
     """
 
     def kronecker_function(X,y):
-        W_values = np.apply_along_axis(W, axis=1, arr=X)
-        S_values = np.apply_along_axis(S, axis=0, arr=y)
+        W_values = W(X)
+        S_values = S(y)
         return np.einsum(
             "nj,nk->njk", W_values, S_values).reshape(X.shape[0], W_values.shape[1]*S_values.shape[1])
 
@@ -33,7 +33,7 @@ def get_kronecker_function(
 
 
 def get_objective_function(
-    T: List[Callable[[np.ndarray, np.float], np.ndarray]],
+    T: List[Callable[[np.ndarray, float], np.ndarray]],
     t: Callable[[np.ndarray, np.ndarray], np.ndarray],
     X: np.ndarray,
     y: np.ndarray,
@@ -52,7 +52,7 @@ def get_objective_function(
     t_hat = t(X,y)
 
     def objective_function(coefficients):
-        return (-0.5(
+        return (-0.5*(
             np.log(2*math.pi) + np.einsum("nk,k->n", T_hat, coefficients)**2
              + np.log(np.einsum("nk,k->n",t_hat, coefficients)))).mean()
 

@@ -2,7 +2,7 @@
 Tools to specify diferent model functions.
 This creates a coupe of basic specifications that can be used within the framework.
 """
-from functools import wraps
+from functools import wraps, reduce
 from itertools import product
 
 import numpy as np
@@ -16,32 +16,32 @@ def _constant_function(X):
 
 def linear_linear():
     # How do I 
-    W = [lambda x: _constant_function(x), lambda x: x]
     S = [lambda y: _constant_function(y), lambda y: y]
     s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y)]
-
-    return combine_functions(W), combine_functions(S), combine_functions(s)
+    W = [lambda x: _constant_function(x), lambda x: x]
+    
+    return combine_functions(S), combine_functions(s), combine_functions(W)
 
 
 def spline_linear(spec_y):
-    W = [lambda x: 1, lambda x: x]
-
-    splines_y = get_spline_basis(**spec_y)
-    S = [lambda y: 1, lambda y: y, *splines_y]
-
-    s = [lambda y: 0, lambda y: 1, *[func_.derivative(1) for func_ in splines_y]]
     
-    return combine_functions(W), combine_functions(S), combine_functions(s)
+    splines_y = get_spline_basis(**spec_y)
+    S = [lambda y: _constant_function(y), lambda y: y, *splines_y]
+
+    s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y), *[func_.derivative(1) for func_ in splines_y]]
+    W = [lambda x: _constant_function(x), lambda x: x]
+
+    return combine_functions(S), combine_functions(s), combine_functions(W)
 
 def spline_spline(spec_y, spec_x):
     splines_y = get_spline_basis(**spec_y)
     splines_x = get_spline_basis(**spec_x)
 
-    S = [lambda y: 1, lambda y: y, *splines_y]
-    s = [lambda y: 0, lambda y: 1, *[func_.derivative(1) for func_ in splines_y]]
+    S = [lambda y: _constant_function(y), lambda y: y, *splines_y]
+    s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y), *[func_.derivative(1) for func_ in splines_y]]
 
-    W = [lambda x: 1, lambda x: x, *splines_x]
-    return combine_functions(W), combine_functions(S), combine_functions(s)
+    W = [lambda x: _constant_function(x), lambda x: x, *splines_x]
+    return combine_functions(S), combine_functions(s), combine_functions(W)
 
 def combine_functions(functions):
 
@@ -69,10 +69,11 @@ def combine_functions(functions):
 
 def get_spline_basis(domains, n_bases, degree):
     # Get knots in each dimension
-    knots = get_all_knot_sequences(
+    knot_sequences = get_all_knot_sequences(
             domains, degree, n_bases)
-    return return_basis_function(knots)
-    
+    return [return_basis_function(knots)
+            for knots in knot_sequences]
+
 
 def wrap_return_basis_functions(func):
     @wraps(func)
@@ -86,8 +87,9 @@ def wrap_return_basis_functions(func):
         def out_function(x):
             # How should this deal with vectors? 
             # Should we vectorize at this level already?
-            return np.prod(
-                [f(x[i]) for i,f in enumerate(functions)])
+            return reduce(
+                lambda a,b: a*b,
+                [f(x[:,i]) for i,f in enumerate(functions)])
         # Return cartesian product of all sequences
         return out_function
     return wrapper
@@ -108,7 +110,7 @@ def wrap_knot_sequences(func):
     @wraps(func)
     def wrapper(domain, degree, n_bases):
         if isinstance(n_bases, (int, float)):
-            return func(domain, degree, n_bases)
+            return func(domain, n_bases, degree)
         
         # Get knot sequences for each n_bases
         sequences = [
@@ -131,10 +133,10 @@ def get_all_knot_sequences(
     min_val, max_val = domain
 
     knots = np.r_[
-        [min_val] * (degree + 1),
+        [min_val] * (degree),
         np.linspace(min_val, max_val, n_bases - degree + 1)[1:-1],
-        [max_val] * (degree + 1)
+        [max_val] * (degree)
     ]
-    knot_sequences = [knots[i:i+degree+1] for i in range(len(knots) - degree)]
+    knot_sequences = [knots[i:i+degree+2] for i in range(len(knots) - degree - 1)]
 
     return knot_sequences
