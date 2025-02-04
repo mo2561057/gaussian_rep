@@ -70,7 +70,7 @@ def combine_functions(functions):
 def get_spline_basis(domains, n_bases, degree):
     # Get knots in each dimension
     knot_sequences = get_all_knot_sequences(
-            domains, degree, n_bases)
+            domains, n_bases, degree)
     return [return_basis_function(knots)
             for knots in knot_sequences]
 
@@ -108,7 +108,7 @@ def wrap_knot_sequences(func):
     """
 
     @wraps(func)
-    def wrapper(domain, degree, n_bases):
+    def wrapper(domain, n_bases, degree):
         if isinstance(n_bases, (int, float)):
             return func(domain, n_bases, degree)
         
@@ -129,14 +129,23 @@ def wrap_knot_sequences(func):
 @wrap_knot_sequences
 def get_all_knot_sequences(
         domain, n_bases, degree):
-    
+    _check_inputs_splines(domain, n_bases, degree)
+
     min_val, max_val = domain
 
     knots = np.r_[
-        [min_val] * (degree),
-        np.linspace(min_val, max_val, n_bases - degree + 1)[1:-1],
-        [max_val] * (degree)
+        [min_val] * (degree - 1),
+        np.linspace(min_val, max_val, n_bases - degree + 4)[1:-1],
+        [max_val] * (degree - 1)
     ]
-    knot_sequences = [knots[i:i+degree+2] for i in range(len(knots) - degree - 1)]
+    knot_sequences = [knots[i:i+degree+1] for i in range(len(knots) - degree)]
 
     return knot_sequences
+
+def _check_inputs_splines(domain, n_bases, degree):
+    if domain[0] >= domain[1]:
+        raise ValueError("domain must be increasing")
+    if (not isinstance(n_bases, (int, float)) or n_bases < 1):
+        raise ValueError("n_bases must be a scalar and greater than 0")
+    if (not isinstance(degree, int) or degree < 1):
+        raise ValueError("degree must be an integer and greater than 0")

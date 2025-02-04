@@ -1,10 +1,10 @@
-import scipy
-import numpy as np
 import math
+
+import numpy as np
 import pickle
-from entry_point import get_full_likelihood_function, estimate_model
-from utils import get_objective_function
-from specification import spline_spline, spline_linear
+
+from gaussian_rep.entry_point import get_full_likelihood_function, estimate_model
+from gaussian_rep.specification import spline_linear
 
 
 y = np.random.uniform(8,9.2,5000)

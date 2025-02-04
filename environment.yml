@@ -11,7 +11,7 @@ dependencies:
   - conda-verify
 
   # Package dependencies
-  - estimagic
+  - optimagic
   - numpy
   - scipy
   - pandas
@@ -28,4 +28,7 @@ dependencies:
   - pytest-cov
   - scikit-learn
   - tox-conda
-
+  - pip
+  - pip:
+    - Py-BOBYQA
+  

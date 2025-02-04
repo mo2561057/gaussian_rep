@@ -1,9 +1,9 @@
-from utils import get_kronecker_function, get_objective_function
 from typing import Callable, List
 
 import numpy as np
 import estimagic as em
 
+from gaussian_rep.utils import get_kronecker_function, get_objective_function
 
 
 def estimate_model(
