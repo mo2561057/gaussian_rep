@@ -1,4 +1,4 @@
-# **Gaussian Representation for Conditional Distributions**  
+# **Estimate Conditional Distributions with Gaussian Representation**  
 
 This repository contains code to estimate multivariate conditional distributions using the Gaussian representation proposed by Spady and Stouli (2020). The implementation relies on the `optimagic` package (Gabler, 2022) for nonlinear optimization.  
 
