@@ -85,8 +85,9 @@ def wrap_return_basis_functions(func):
         functions = [func(knots_dim) for knots_dim in knots]
         
         def out_function(x):
-            # How should this deal with vectors? 
-            # Should we vectorize at this level already?
+            if x.ndim == 1:
+                x = x[:, np.newaxis]
+
             return reduce(
                 lambda a,b: a*b,
                 [f(x[:,i]) for i,f in enumerate(functions)])
