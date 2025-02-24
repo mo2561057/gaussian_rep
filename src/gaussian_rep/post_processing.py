@@ -17,22 +17,19 @@ def convert_to_distribution_multivariate(S, W, coefficients):
     Ts = [get_kronecker_function(S[0],W)]
     for S_ in S[1:]:
         Ts.append(get_kronecker_function(S_,Ts[-1]))
-    
     def conditional_cdf(y, x, prob=lambda y: np.ones(y.shape[0]) if y.ndim > 1 else 1):
         input_y, input_x = _broadcast_arguments_multivariate(y, x)
         prob = prob(input_y) if callable(prob) else prob
-        y_current = input_y[:,0]
+        y_current = input_y[:,[0]]
         current_position = input_y.shape[1]
         prob_dim = norm.cdf(Ts[-current_position](y_current,input_x)@coefficients[-current_position])
         prob = prob*prob_dim
         if input_y.shape[1] == 1:
             return prob
         else:
-            return conditional_cdf(input_y[:,1:],(y_current, input_x),prob)
+            return conditional_cdf(input_y[:,[x for x in range(1, input_y.shape[1])]],(y_current, input_x),prob)
 
     return conditional_cdf
-
-
 
 def _broadcast_arguments_multivariate(y, x):
     if y.ndim == 1:

@@ -68,3 +68,5 @@ multivariate_cdf(np.array([0.5,0.5]), np.array([0.5]))
 
 y_check = np.array([[0, 0.1, 0.2, -0.1, -0,2, 0, 0.1, 0.2, -0.1, -0,2]]).reshape(6,2)
 X_check = np.array([[0,0.1,0.2,0.3,0.4,0.5]]).reshape(6,1)
+
+multivariate_cdf(y_check, X_check)
