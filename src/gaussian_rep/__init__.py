@@ -10,8 +10,8 @@ from gaussian_rep.specification import (
     combine_functions
 )
 from gaussian_rep.entry_point import (
-    get_full_likelihood_function,
-    estimate_model
+    recursively_estimate_multivariate_dual,
+    estimate_model_primal
 )
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     'combine_functions',
     'spline_linear',
     'spline_spline',
-    'get_full_likelihood_function',
-    'estimate_model'
+    'estimate_model_primal',
+    'recursively_estimate_multivariate_dual',
 ]

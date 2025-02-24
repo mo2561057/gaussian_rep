@@ -5,9 +5,9 @@ import estimagic as em
 import cvxpy as cp
 
 from gaussian_rep.utils import get_kronecker_function, get_objective_function, get_derivative_objective_function
+from gaussian_rep.utils import get_dual_objective_function, get_dual_constraint, solve_dual_problem
 
-
-def estimate_model(
+def estimate_model_primal(
         params: np.ndarray,
         objective_function : Callable[[np.ndarray], float],
         optimagic_options : dict
@@ -19,81 +19,33 @@ def estimate_model(
     )
     return res
 
-def recursively_estimate_model_multiple_outcomes(
-        S : List[Callable[[np.ndarray], np.ndarray]],
-        s : List[Callable[[np.ndarray], np.ndarray]],
-        W : List[Callable[[np.ndarray], np.ndarray]],
-        X : np.ndarray,
-        y : np.ndarray):
-    pass
 
-def get_full_likelihood_function(
-        S : Callable[[np.ndarray], np.ndarray],
-        s : Callable[[np.ndarray], np.ndarray],
-        W : Callable[[np.ndarray], np.ndarray],
-        y : np.ndarray,
-        X : np.ndarray
-    ) -> Callable[[np.ndarray], np.ndarray]:
-    """
-    Build full likelihood function from components.
+def recursively_estimate_multivariate_dual(
+        S:Callable[[np.ndarray], np.ndarray],
+        s:Callable[[np.ndarray], np.ndarray],
+        W:Callable[[np.ndarray], np.ndarray],
+        y: np.ndarray,
+        X: np.ndarray,
+        beta: List[np.ndarray]=[],
+):
+    S = [S] if callable(S) else S
+    s = [s] if callable(s) else s
 
-    Args:
-        S : Outcome component of Gaussian representation
-        s : Gradient of S
-        W : Covariate component of Gaussian representation
-        X : numpy array of covariates
-        Y : numpy array of outcomes
+    # Estimate the first problem
+    S_current = S if callable(S) else S[0]
+    s_current = s if callable(s) else s[0]
 
-    Returns:
-        Callable[[np.ndarray], np.ndarray]: Full likelihood function
-    """
-    T = get_kronecker_function(S, W)
+    y_current = y[:,0] if y.ndim > 1 else y
 
-    #Not sure if that is correct
-    t = get_kronecker_function(s, W)
-    return get_objective_function(T, t, y, X)
+    T = get_kronecker_function(S_current, W)
+    t = get_kronecker_function(s_current, W)
+    dual_objective_function = get_dual_objective_function()
+    dual_constraint = get_dual_constraint(T, t, y_current, X)
 
-def get_derivative_likelihood_function(
-        S : Callable[[np.ndarray], np.ndarray],
-        s : Callable[[np.ndarray], np.ndarray],
-        W : Callable[[np.ndarray], np.ndarray],
-        y : np.ndarray,
-        X : np.ndarray
-    ) -> Callable[[np.ndarray], np.ndarray]:
-    """
-    Build full likelihood function from components.
+    rslt = solve_dual_problem(dual_objective_function, dual_constraint, len(y_current), algorithm=cp.SCS)
+    beta.append(rslt)
 
-    Args:
-        S : Outcome component of Gaussian representation
-        s : Gradient of S
-        W : Covariate component of Gaussian representation
-        X : numpy array of covariates
-        Y : numpy array of outcomes
-
-    Returns:
-        Callable[[np.ndarray], np.ndarray]: Full likelihood function
-    """
-    T = get_kronecker_function(S, W)
-    t = get_kronecker_function(s, W)
-
-
-    #Not sure if that is correct
-    return get_derivative_objective_function(T, t, y, X)
-
-
-def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
-                       foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
-                       n : int,
-                       algorithm : str = "ECOS"
-                       ):
-                       
-    u = cp.Variable(n)
-    v = cp.Variable(n)
-    condition_1 = foc_gradient(u,v)==0
-    constraints = [condition_1]
-    objective = cp.Minimize(dual_objective_function(u,v))
-    problem = cp.Problem(objective, constraints)
-
-    problem.solve(solver=algorithm, verbose=True, max_iters=1000)
-    b_hat = -condition_1.dual_value
-    return b_hat
+    if len(S) > 1:
+        return recursively_estimate_multivariate_dual(S[1:],s[1:], T, y[:,1:], (y_current,X), beta)    
+    else:
+        return beta

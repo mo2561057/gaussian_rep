@@ -2,13 +2,41 @@ import numpy as np
 import scipy
 import pandas as pd
 import math
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 import cvxpy as cp
 
+
+def get_full_likelihood_function(
+        S : Callable[[np.ndarray], np.ndarray],
+        s : Callable[[np.ndarray], np.ndarray],
+        W : Callable[[np.ndarray], np.ndarray],
+        y : np.ndarray,
+        X : np.ndarray
+    ) -> Callable[[np.ndarray], np.ndarray]:
+    """
+    Build full likelihood function from components.
+
+    Args:
+        S : Outcome component of Gaussian representation
+        s : Gradient of S
+        W : Covariate component of Gaussian representation
+        X : numpy array of covariates
+        Y : numpy array of outcomes
+
+    Returns:
+        Callable[[np.ndarray], np.ndarray]: Full likelihood function
+    """
+    T = get_kronecker_function(S, W)
+
+    #Not sure if that is correct
+    t = get_kronecker_function(s, W)
+    return get_objective_function(T, t, y, X)
+
+
 def get_kronecker_function(
     S: List[Callable[[float], np.ndarray]],
-    W: List[Callable[[np.ndarray], np.ndarray]],
+    W: tuple(List[Callable[[np.ndarray], np.ndarray]]),
 ) -> callable:
     """
     Compute the Kronecker product of two vectors of functions and multiply by coefficients
@@ -23,10 +51,11 @@ def get_kronecker_function(
     """
 
     def kronecker_function(y,X):
-        W_values = W(X)
+        X = (X,) if type(X) != tuple else X
+        W_values = W(*X)
         S_values = S(y)
         return np.einsum(
-            "nj,nk->njk", W_values, S_values).reshape(X.shape[0], W_values.shape[1]*S_values.shape[1])
+            "nj,nk->njk", W_values, S_values).reshape(X[0].shape[0], W_values.shape[1]*S_values.shape[1])
 
     return kronecker_function
 
@@ -123,3 +152,50 @@ def get_initial_bounds(derivative, input_params, magnitude=1000):
     params["upper_bound"] = params["value"] + deviation
     params["lower_bound"] = params["value"] - deviation
     return params 
+
+
+def get_derivative_likelihood_function(
+        S : Callable[[np.ndarray], np.ndarray],
+        s : Callable[[np.ndarray], np.ndarray],
+        W : Callable[[np.ndarray], np.ndarray],
+        y : np.ndarray,
+        X : np.ndarray
+    ) -> Callable[[np.ndarray], np.ndarray]:
+    """
+    Build full likelihood function from components.
+
+    Args:
+        S : Outcome component of Gaussian representation
+        s : Gradient of S
+        W : Covariate component of Gaussian representation
+        X : numpy array of covariates
+        Y : numpy array of outcomes
+
+    Returns:
+        Callable[[np.ndarray], np.ndarray]: Full likelihood function
+    """
+    T = get_kronecker_function(S, W)
+    t = get_kronecker_function(s, W)
+
+
+    #Not sure if that is correct
+    return get_derivative_objective_function(T, t, y, X)
+
+
+
+def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
+                       foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
+                       n : int,
+                       algorithm : str = "ECOS"
+                       ):
+                       
+    u = cp.Variable(n)
+    v = cp.Variable(n)
+    condition_1 = foc_gradient(u,v)==0
+    constraints = [condition_1]
+    objective = cp.Minimize(dual_objective_function(u,v))
+    problem = cp.Problem(objective, constraints)
+
+    problem.solve(solver=algorithm, verbose=True, max_iters=1000)
+    b_hat = -condition_1.dual_value
+    return b_hat
