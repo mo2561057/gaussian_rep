@@ -54,17 +54,11 @@ T = get_kronecker_function(S, W)
 cdf = convert_to_distribution(S_2, T, rslt_2[1])
 cdf(0, (np.array([-0.5]), np.array([0.5])))
 
-
-
-
-
 multivariate_cdf = convert_to_distribution_multivariate(
     S_multi, W, rslt_2
 )
 
 multivariate_cdf(np.array([0.5,0.5]), np.array([0.5]))
-
-
 
 y_check = np.array([[0, 0.1, 0.2, -0.1, -0,2, 0, 0.1, 0.2, -0.1, -0,2]]).reshape(6,2)
 X_check = np.array([[0,0.1,0.2,0.3,0.4,0.5]]).reshape(6,1)
