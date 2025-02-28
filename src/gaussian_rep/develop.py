@@ -7,7 +7,7 @@ import cvxpy as cp
 
 from gaussian_rep.entry_point import recursively_estimate_multivariate_dual
 from gaussian_rep.specification import spline_linear, linear_linear, spline_spline
-from gaussian_rep.post_processing import convert_to_distribution, convert_to_distribution_multivariate
+from gaussian_rep.post_processing import convert_to_distribution
 from gaussian_rep.utils import get_kronecker_function
 from gaussian_rep.utils import get_initial_bounds
 from gaussian_rep.utils import get_dual_constraint, get_dual_objective_function
@@ -48,7 +48,9 @@ S_2, s_2, _ = spline_spline(spec_y, spec_x)
 S_multi = [S, S_2]
 s_multi = [s, s_2]
 full_y = np.concatenate( [y[:,np.newaxis], y_2[:,np.newaxis]], axis=1)
-rslt_2 = recursively_estimate_multivariate_dual(S_multi,s_multi,W,full_y,X,[])
+rslt_2 = recursively_estimate_multivariate_dual(
+    S_multi,s_multi,W,full_y,X,[])
+
 Xy_1 = np.concatenate([y[:,np.newaxis], X], axis=1)
 T = get_kronecker_function(S, W)
 cdf = convert_to_distribution(S_2, T, rslt_2[1])
@@ -64,3 +66,8 @@ y_check = np.array([[0, 0.1, 0.2, -0.1, -0,2, 0, 0.1, 0.2, -0.1, -0,2]]).reshape
 X_check = np.array([[0,0.1,0.2,0.3,0.4,0.5]]).reshape(6,1)
 
 multivariate_cdf(y_check, X_check)
+
+
+def func(*args):
+    breakpoint()
+    return np.array([1,2,3])

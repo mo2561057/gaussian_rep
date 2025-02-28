@@ -50,12 +50,12 @@ def get_kronecker_function(
         float: Result of kronecker product multiplied by coefficients
     """
 
-    def kronecker_function(y,X):
-        X = (X,) if type(X) != tuple else X
-        W_values = W(*X)
+    def kronecker_function(*args):
+        y,X = args if len(args)==2 else (args[0][:,0], args[0][:,1:])
+        W_values = W(X)
         S_values = S(y)
         return np.einsum(
-            "nj,nk->njk", W_values, S_values).reshape(X[0].shape[0], W_values.shape[1]*S_values.shape[1])
+            "nj,nk->njk", W_values, S_values).reshape(X.shape[0], W_values.shape[1]*S_values.shape[1])
 
     return kronecker_function
 

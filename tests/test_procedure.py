@@ -50,7 +50,7 @@ def test_procedure_univariate(test_runs=1):
         check_number = np.random.uniform(-1,1)
         evaluate = [check_number-2 , check_number-1, check_number, check_number+1, check_number+2]
         actual = np.array(
-            [conditional_cdf(check_number, np.array([check_number])) for check_number in evaluate])ßß
+            [conditional_cdf(check_number, np.array([check_number])) for check_number in evaluate])
         
         expected = np.array(
             [0.025, 0.16,0.5, 0.84, 0.975])

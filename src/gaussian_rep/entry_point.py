@@ -46,6 +46,6 @@ def recursively_estimate_multivariate_dual(
     beta.append(rslt)
 
     if len(S) > 1:
-        return recursively_estimate_multivariate_dual(S[1:],s[1:], T, y[:,1:], (y_current,X), beta)    
+        return recursively_estimate_multivariate_dual(S[1:],s[1:], T, y[:,1:], np.concatenate([y_current.reshape(y_current.shape[0],1),X],axis=1), beta)    
     else:
         return beta

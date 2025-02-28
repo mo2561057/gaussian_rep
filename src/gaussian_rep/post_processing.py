@@ -25,5 +25,4 @@ def _broadcast_arguments(y, x):
         out_x = x[np.newaxis,:]
     else:
         out_x = x
-
     return out_y, out_x
