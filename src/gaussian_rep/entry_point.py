@@ -27,6 +27,7 @@ def recursively_estimate_multivariate_dual(
         y: np.ndarray,
         X: np.ndarray,
         beta: List[np.ndarray]=[],
+        algorithm=cp.SCS
 ):
     S = [S] if callable(S) else S
     s = [s] if callable(s) else s
@@ -42,7 +43,7 @@ def recursively_estimate_multivariate_dual(
     dual_objective_function = get_dual_objective_function()
     dual_constraint = get_dual_constraint(T, t, y_current, X)
 
-    rslt = solve_dual_problem(dual_objective_function, dual_constraint, len(y_current), algorithm=cp.SCS)
+    rslt = solve_dual_problem(dual_objective_function, dual_constraint, len(y_current), algorithm=algorithm)
     beta.append(rslt)
 
     if len(S) > 1:
