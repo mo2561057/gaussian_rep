@@ -14,8 +14,7 @@ from gaussian_rep.entry_point import (
     estimate_model_primal
 )
 from gaussian_rep.post_processing import (
-    convert_to_distribution,
-    convert_to_distribution_multivariate
+    convert_to_distribution
 )
 __all__ = [
     'get_kronecker_function',
@@ -26,5 +25,4 @@ __all__ = [
     'estimate_model_primal',
     'recursively_estimate_multivariate_dual',
     'convert_to_distribution',
-    'convert_to_distribution_multivariate'
     ]
