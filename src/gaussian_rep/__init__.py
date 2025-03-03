@@ -22,7 +22,6 @@ __all__ = [
     'combine_functions',
     'spline_linear',
     'spline_spline',
-    'estimate_model_primal',
     'recursively_estimate_multivariate_dual',
     'convert_to_distribution',
     ]
