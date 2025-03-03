@@ -1,6 +1,4 @@
 import numpy as np
-import scipy
-import pandas as pd
 import math
 from typing import Callable, List, Tuple
 

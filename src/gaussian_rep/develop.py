@@ -1,16 +1,9 @@
-import math
-
 import numpy as np
-import pandas as pd
-import pickle
-import cvxpy as cp
 
 from gaussian_rep.entry_point import recursively_estimate_multivariate_dual
-from gaussian_rep.specification import spline_linear, linear_linear, spline_spline
+from gaussian_rep.specification import spline_spline
 from gaussian_rep.post_processing import convert_to_distribution
 from gaussian_rep.utils import get_kronecker_function
-from gaussian_rep.utils import get_initial_bounds
-from gaussian_rep.utils import get_dual_constraint, get_dual_objective_function
 
 X = np.zeros((5000,1))
 X[:, 0] = np.random.uniform(-1, 1, 5000)

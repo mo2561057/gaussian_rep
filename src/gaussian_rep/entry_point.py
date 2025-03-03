@@ -1,24 +1,10 @@
 from typing import Callable, List
 
 import numpy as np
-import estimagic as em
 import cvxpy as cp
 
 from gaussian_rep.utils import get_kronecker_function, get_objective_function, get_derivative_objective_function
 from gaussian_rep.utils import get_dual_objective_function, get_dual_constraint, solve_dual_problem
-
-def estimate_model_primal(
-        params: np.ndarray,
-        objective_function : Callable[[np.ndarray], float],
-        optimagic_options : dict
-    ) -> dict:
-    res = em.maximize(
-        objective_function,
-        params,
-        **optimagic_options
-    )
-    return res
-
 
 def recursively_estimate_multivariate_dual(
         S:Callable[[np.ndarray], np.ndarray],
