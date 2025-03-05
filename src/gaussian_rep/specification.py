@@ -19,7 +19,6 @@ def linear_linear():
     S = [lambda y: _constant_function(y), lambda y: y]
     s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y)]
     W = [lambda x: _constant_function(x), lambda x: x]
-    
     return combine_functions(S), combine_functions(s), combine_functions(W)
 
 

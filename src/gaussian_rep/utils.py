@@ -184,7 +184,8 @@ def get_derivative_likelihood_function(
 def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
                        foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
                        n : int,
-                       algorithm : str = "ECOS"
+                       algorithm : str = "ECOS",
+                       algorithm_options : dict = {"max_iters": 1000, "verbose": True}
                        ):
                        
     u = cp.Variable(n)
@@ -194,6 +195,6 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
     objective = cp.Minimize(dual_objective_function(u,v))
     problem = cp.Problem(objective, constraints)
 
-    problem.solve(solver=algorithm, verbose=True, max_iters=1000)
+    problem.solve(solver=algorithm, **algorithm_options)
     b_hat = -condition_1.dual_value
     return b_hat
