@@ -11,7 +11,6 @@ from gaussian_rep.specification import (
 )
 from gaussian_rep.entry_point import (
     recursively_estimate_multivariate_dual,
-    estimate_model_primal
 )
 from gaussian_rep.post_processing import (
     convert_to_distribution
