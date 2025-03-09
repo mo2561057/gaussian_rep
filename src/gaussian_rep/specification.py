@@ -42,6 +42,27 @@ def spline_spline(spec_y, spec_x):
     W = [lambda x: _constant_function(x), lambda x: x, *splines_x]
     return combine_functions(S), combine_functions(s), combine_functions(W)
 
+
+def spline_spline_individual(spec_y, spec_x):
+    splines_y = get_spline_basis(**spec_y)
+
+    # Get splines in individual dimensions
+    splines_container = []
+    for pos, _ in enumerate(spec_x['n_bases']):
+        spec = {}
+        spec['degree'] = spec_x['degree'][pos]
+        spec['n_bases'] = spec_x['n_bases'][pos]
+        spec['domains'] = spec_x['domains'][pos]
+        splines_container.append(get_spline_basis(
+            **spec_x))
+
+    S = [lambda y: _constant_function(y), lambda y: y, *splines_y]
+    s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y), *[func_.derivative(1) for func_ in splines_y]]
+
+    W = [lambda x: _constant_function(x), lambda x: x, *splines_container]
+    return combine_functions(S), combine_functions(s), combine_functions(W)
+
+
 def combine_functions(functions):
 
     def out_function(x):
