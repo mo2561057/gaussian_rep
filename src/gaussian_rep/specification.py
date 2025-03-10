@@ -54,7 +54,7 @@ def spline_spline_individual(spec_y, spec_x):
         spec['n_bases'] = spec_x['n_bases'][pos]
         spec['domains'] = spec_x['domains'][pos]
         splines_container.append(get_spline_basis(
-            **spec_x))
+            **spec))
 
     S = [lambda y: _constant_function(y), lambda y: y, *splines_y]
     s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y), *[func_.derivative(1) for func_ in splines_y]]
