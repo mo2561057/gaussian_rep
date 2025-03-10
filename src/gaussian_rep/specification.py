@@ -9,7 +9,6 @@ import numpy as np
 from scipy.interpolate import BSpline
 
 
-
 def _constant_function(X):
     return np.ones(X.shape[0])
 
@@ -53,8 +52,8 @@ def spline_spline_individual(spec_y, spec_x):
         spec['degree'] = spec_x['degree'][pos]
         spec['n_bases'] = spec_x['n_bases'][pos]
         spec['domains'] = spec_x['domains'][pos]
-        splines_container.append(get_spline_basis(
-            **spec))
+        splines_container = [*splines_container, *[
+            lambda x, pos=pos: func_(x[:,pos] if x.ndim>1 else x[pos]) for func_ in  get_spline_basis(**spec)]]
 
     S = [lambda y: _constant_function(y), lambda y: y, *splines_y]
     s = [lambda y: _constant_function(y)*0, lambda y: _constant_function(y), *[func_.derivative(1) for func_ in splines_y]]
@@ -85,6 +84,7 @@ def combine_functions(functions):
         ]
         # Use np.hstack for efficient concatenation
         return np.hstack(shaped_arrays)
+    
     return out_function
 
 def get_spline_basis(domains, n_bases, degree):

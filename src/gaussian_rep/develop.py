@@ -1,7 +1,8 @@
+"""Dev Script"""
 import numpy as np
 
 from gaussian_rep.entry_point import recursively_estimate_multivariate_dual
-from gaussian_rep.specification import spline_spline
+from gaussian_rep.specification import spline_spline, spline_spline_individual
 from gaussian_rep.post_processing import convert_to_distribution
 from gaussian_rep.utils import get_kronecker_function
 
@@ -19,6 +20,19 @@ degree_y = 3
 degree_x = 3
 spec_y = {'domains': domain_y, 'n_bases': n_bases_y, 'degree': degree_y}
 spec_x = {'domains': domain_x, 'n_bases': n_bases_x, 'degree': degree_x}
+
+
+X = np.zeros((5000,2))
+X[:, 0] = np.random.uniform(-1, 1, 5000)
+X[:, 1] = np.random.uniform(-1, 1, 5000)
+
+
+spec_x_mult = {'domains': [domain_x, domain_x], 'n_bases': [n_bases_x,n_bases_x], 'degree': [degree_x, degree_x]}
+
+
+# Try Splines
+S, s, W = spline_spline_individual(spec_y, spec_x_mult)
+
 
 # Generate base functions
 S, s, W = spline_spline(spec_y, spec_x)
