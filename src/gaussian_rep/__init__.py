@@ -7,6 +7,7 @@ from gaussian_rep.utils import (
 from gaussian_rep.specification import (
     spline_linear,
     spline_spline,
+    spline_spline_individual,
     combine_functions
 )
 from gaussian_rep.entry_point import (
@@ -21,6 +22,7 @@ __all__ = [
     'combine_functions',
     'spline_linear',
     'spline_spline',
+    'spline_spline_individual',
     'recursively_estimate_multivariate_dual',
     'convert_to_distribution',
     ]
