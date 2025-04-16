@@ -192,6 +192,7 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
     u = cp.Variable(n)
     v = cp.Variable(n)
     if regularization is not None:
+        # We need to know the size of T
         condition_1 = foc_gradient(u,v)<=regularization
         condition_2 = foc_gradient(u,v)>=-regularization
         constraints = [condition_1, condition_2]
