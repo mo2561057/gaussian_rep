@@ -185,16 +185,29 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
                        foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
                        n : int,
                        algorithm : str = "ECOS",
-                       algorithm_options : dict = {"max_iters": 1000, "verbose": True}
+                       algorithm_options : dict = {"max_iters": 1000, "verbose": True},
+                       regularization: np.ndarray = None,
                        ):
                        
     u = cp.Variable(n)
     v = cp.Variable(n)
-    condition_1 = foc_gradient(u,v)==0
-    constraints = [condition_1]
+    if regularization is not None:
+        condition_1 = foc_gradient(u,v)<=regularization
+        condition_2 = foc_gradient(u,v)>=-regularization
+        constraints = [condition_1, condition_2]
+    else:    
+        condition_1 = foc_gradient(u,v)==0
+        constraints = [condition_1]
     objective = cp.Minimize(dual_objective_function(u,v))
     problem = cp.Problem(objective, constraints)
 
     problem.solve(solver=algorithm, **algorithm_options)
-    b_hat = -condition_1.dual_value
+    if regularization is not None:
+        # For the regularized case, we need to combine dual values from both constraints
+        # The dual value for the upper bound minus the dual value for the lower bound
+        b_hat = condition_2.dual_value - condition_1.dual_value
+    else:
+        # For the non-regularized case, just get the dual value as before
+        b_hat = -condition_1.dual_value
+
     return b_hat
