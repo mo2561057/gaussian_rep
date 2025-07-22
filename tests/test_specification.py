@@ -7,6 +7,8 @@ from gaussian_rep.utils import (
 )
 from gaussian_rep.specification import combine_functions, get_spline_basis, get_all_knot_sequences
 
-
 def test_spline_spline_individual():
     pass
+
+
+
