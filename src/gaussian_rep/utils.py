@@ -203,6 +203,10 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
     problem = cp.Problem(objective, constraints)
 
     problem.solve(solver=algorithm, **algorithm_options)
+    print("Objective value:", problem.value)
+    print("Status:", problem.status)
+    print("Primal variables:", u.value, v.value)
+    print("Constraint residual:", foc_gradient(u, v).value)
     if regularization is not None:
         # For the regularized case, we need to combine dual values from both constraints
         # The dual value for the upper bound minus the dual value for the lower bound

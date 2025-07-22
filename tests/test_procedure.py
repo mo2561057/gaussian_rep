@@ -42,7 +42,7 @@ def test_procedure_univariate(test_runs=1):
     foc_gradient = get_dual_constraint(T, t, y, X)
 
     rslt = solve_dual_problem(
-        dual_objective_function, foc_gradient, 5000)
+        dual_objective_function, foc_gradient, 5000, algorithm="SCS")
 
     conditional_cdf = convert_to_distribution(S, W, rslt)
 
