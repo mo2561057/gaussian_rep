@@ -19,12 +19,14 @@ def simulated_sample_univariate_spline_spline(
     y = np.clip(y, -3, 3)
 
     domain_y = (-3,3)
+    domain_y2 = (-2,2)
     domain_x = (-1, 1)
     n_bases_y = 10
     n_bases_x = 6
     degree_y = 3
     degree_x = 3
     spec_y = {'domains': domain_y, 'n_bases': n_bases_y, 'degree': degree_y}
+    spec_y2 = {'domains': domain_y2, 'n_bases': n_bases_y, 'degree': degree_y}
     spec_x = {'domains': domain_x, 'n_bases': n_bases_x, 'degree': degree_x}
 
     # Generate base functions

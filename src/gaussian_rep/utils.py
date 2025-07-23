@@ -195,10 +195,12 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
         # We need to know the size of T
         condition_1 = foc_gradient(u,v)<=regularization
         condition_2 = foc_gradient(u,v)>=-regularization
-        constraints = [condition_1, condition_2]
+        condition_3 = v<0 # Ensure v is negative
+        constraints = [condition_1, condition_2, condition_3]
     else:    
         condition_1 = foc_gradient(u,v)==0
-        constraints = [condition_1]
+        condition_2 = v < 0  # Ensure v is negative
+        constraints = [condition_1, condition_2]
     objective = cp.Minimize(dual_objective_function(u,v))
     problem = cp.Problem(objective, constraints)
 
@@ -206,6 +208,7 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
     print("Objective value:", problem.value)
     print("Status:", problem.status)
     print("Primal variables:", u.value, v.value)
+    print("Eval:",dual_objective_function(u, v).value)
     print("Constraint residual:", foc_gradient(u, v).value)
     if regularization is not None:
         # For the regularized case, we need to combine dual values from both constraints
