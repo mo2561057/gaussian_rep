@@ -187,6 +187,7 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
                        algorithm : str = "ECOS",
                        algorithm_options : dict = {"max_iters": 1000, "verbose": True},
                        regularization: np.ndarray = None,
+                       tol: float = 1e-05
                        ):
                        
     u = cp.Variable(n)
@@ -195,11 +196,11 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
         # We need to know the size of T
         condition_1 = foc_gradient(u,v)<=regularization
         condition_2 = foc_gradient(u,v)>=-regularization
-        condition_3 = v <= -1e-08 # Ensure v is negative
+        condition_3 = v <= -tol # Ensure v is negative
         constraints = [condition_1, condition_2, condition_3]
     else:    
         condition_1 = foc_gradient(u,v)==0
-        condition_2 = v <= -1e-05  # Ensure v is negative
+        condition_2 = v <= -tol  # Ensure v is negative
         constraints = [condition_1, condition_2]
     objective = cp.Minimize(dual_objective_function(u,v))
     problem = cp.Problem(objective, constraints)
