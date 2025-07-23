@@ -42,8 +42,7 @@ def recursively_estimate_multivariate_dual(
         len(y_current),
         algorithm=algorithm,
         algorithm_options=algorithm_options,
-        regularization=regularization_procedure_current,
-        tol=tol)
+        regularization=regularization_procedure_current)
     beta.append(rslt)
 
     if len(S) > 1:
