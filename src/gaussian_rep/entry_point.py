@@ -26,7 +26,6 @@ def recursively_estimate_multivariate_dual(
     s_current = s if callable(s) else s[0]
 
     y_current = y[:,0] if y.ndim > 1 else y
-
     T = get_kronecker_function(S_current, W)
     t = get_kronecker_function(s_current, W)
     #dual_objective_function = get_dual_objective_function()

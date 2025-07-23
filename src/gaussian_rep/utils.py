@@ -179,97 +179,98 @@ def get_derivative_likelihood_function(
     #Not sure if that is correct
     return get_derivative_objective_function(T, t, y, X)
 
-
-def solve_dual_problem(
-    foc_gradient: Callable[[cp.Variable, cp.Variable], cp.Expression],
-    n: int,
-    algorithm: str = "ECOS",
-    algorithm_options: dict = {"max_iters": 1000, "verbose": True},
-    regularization: np.ndarray = None,
-):
-    u = cp.Variable(n)
-    v = cp.Variable(n)
-    t = cp.Variable(n)  # auxiliary variable
-
-    # Model log(-v) ≥ t using exponential cone: (t_i, 1, -v_i) ∈ K_exp
-    exp_cones = [cp.constraints.ExpCone(t[i], 1.0, -v[i]) for i in range(n)]
-
-    # Objective: sum of u^2 - t (maximize lower bound on log(-v))
-    dual_objective_expr = cp.sum(u ** 2 - t)
-
-    # Constraints
-    if regularization is not None:
-        condition_1 = foc_gradient(u, v) <= regularization
-        condition_2 = foc_gradient(u, v) >= -regularization
-        constraints = [condition_1, condition_2] + exp_cones
-    else:
-        condition_1 = foc_gradient(u, v) == 0
-        constraints = [condition_1] + exp_cones
-
-    problem = cp.Problem(cp.Minimize(dual_objective_expr), constraints)
-    problem.solve(solver=algorithm, **algorithm_options)
-
-    print("Objective value:", problem.value)
-    print("Status:", problem.status)
-    print("Primal variables:")
-    print("  u:", u.value)
-    print("  v:", v.value)
-    print("  t:", t.value)
-    if (v.value < -1e-6).all():
-        print("All values in v are safely negative.")
-    else:
-        print("WARNING: Some values in v are non-negative or near-zero!")
-        print("Violating values:", v.value[v.value >= -1e-6])
-
-    if regularization is not None:
-        b_hat = condition_2.dual_value - condition_1.dual_value
-    else:
-        b_hat = -condition_1.dual_value
-
-    return b_hat
 #
-#def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
-#                       foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
-#                       n : int,
-#                       algorithm : str = "ECOS",
-#                       algorithm_options : dict = {"max_iters": 1000, "verbose": True},
-#                       regularization: np.ndarray = None,
-#                       tol: float = 1e-05
-#                       ):
-#                       
+#def solve_dual_problem(
+#    foc_gradient: Callable[[cp.Variable, cp.Variable], cp.Expression],
+#    n: int,
+#    algorithm: str = "ECOS",
+#    algorithm_options: dict = {"max_iters": 1000, "verbose": True},
+#    regularization: np.ndarray = None,
+#):
 #    u = cp.Variable(n)
 #    v = cp.Variable(n)
-#    if regularization is not None:
-#        # We need to know the size of T
-#        condition_1 = foc_gradient(u,v)<=regularization
-#        condition_2 = foc_gradient(u,v)>=-regularization
-#        condition_3 = v <= -tol # Ensure v is negative
-#        constraints = [condition_1, condition_2, condition_3]
-#    else:    
-#        condition_1 = foc_gradient(u,v)==0
-#        condition_2 = v <= -tol  # Ensure v is negative
-#        constraints = [condition_1, condition_2]
-#    objective = cp.Minimize(dual_objective_function(u,v))
-#    problem = cp.Problem(objective, constraints)
+#    t = cp.Variable(n)  # auxiliary variable
 #
+#    # Model log(-v) ≥ t using exponential cone: (t_i, 1, -v_i) ∈ K_exp
+#    exp_cones = [cp.constraints.ExpCone(t[i], 1.0, -v[i]) for i in range(n)]
+#
+#    # Objective: sum of u^2 - t (maximize lower bound on log(-v))
+#    dual_objective_expr = cp.sum(u ** 2 - t)
+#
+#    # Constraints
+#    if regularization is not None:
+#        condition_1 = foc_gradient(u, v) <= regularization
+#        condition_2 = foc_gradient(u, v) >= -regularization
+#        constraints = [condition_1, condition_2] + exp_cones
+#    else:
+#        condition_1 = foc_gradient(u, v) == 0
+#        constraints = [condition_1] + exp_cones
+#
+#    problem = cp.Problem(cp.Minimize(dual_objective_expr), constraints)
 #    problem.solve(solver=algorithm, **algorithm_options)
+#
 #    print("Objective value:", problem.value)
 #    print("Status:", problem.status)
-#    print("Primal variables:", u.value, v.value)
-#    if (v.value < 0).all():
-#        print("All values in v are negative.")
+#    print("Primal variables:")
+#    print("  u:", u.value)
+#    print("  v:", v.value)
+#    print("  t:", t.value)
+#    if (v.value < -1e-6).all():
+#        print("All values in v are safely negative.")
 #    else:
-#        print("There are pos values in v.")
-#        print("pos entries in v:", v.value[v.value >= 0])
-#    
-#    print("Eval:",dual_objective_function(u, v).value)
-#    print("Constraint residual:", foc_gradient(u, v).value)
+#        print("WARNING: Some values in v are non-negative or near-zero!")
+#        print("Violating values:", v.value[v.value >= -1e-6])
+#
 #    if regularization is not None:
-#        # For the regularized case, we need to combine dual values from both constraints
-#        # The dual value for the upper bound minus the dual value for the lower bound
 #        b_hat = condition_2.dual_value - condition_1.dual_value
 #    else:
-#        # For the non-regularized case, just get the dual value as before
 #        b_hat = -condition_1.dual_value
 #
 #    return b_hat
+#
+
+def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
+                       foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
+                       n : int,
+                       algorithm : str = "ECOS",
+                       algorithm_options : dict = {"max_iters": 1000, "verbose": True},
+                       regularization: np.ndarray = None,
+                       tol: float = 1e-05
+                       ):
+    dual_objective_function = get_dual_objective_function()                   
+    u = cp.Variable(n)
+    v = cp.Variable(n)
+    if regularization is not None:
+        # We need to know the size of T
+        condition_1 = foc_gradient(u,v)<=regularization
+        condition_2 = foc_gradient(u,v)>=-regularization
+        condition_3 = v <= -tol # Ensure v is negative
+        constraints = [condition_1, condition_2, condition_3]
+    else:    
+        condition_1 = foc_gradient(u,v)==0
+        condition_2 = v <= -tol  # Ensure v is negative
+        constraints = [condition_1, condition_2]
+    objective = cp.Minimize(dual_objective_function(u,v))
+    problem = cp.Problem(objective, constraints)
+
+    problem.solve(solver=algorithm, **algorithm_options)
+    print("Objective value:", problem.value)
+    print("Status:", problem.status)
+    print("Primal variables:", u.value, v.value)
+    if (v.value < 0).all():
+        print("All values in v are negative.")
+    else:
+        print("There are pos values in v.")
+        print("pos entries in v:", v.value[v.value >= 0])
+    
+    print("Eval:",dual_objective_function(u, v).value)
+    print("Constraint residual:", foc_gradient(u, v).value)
+    if regularization is not None:
+        # For the regularized case, we need to combine dual values from both constraints
+        # The dual value for the upper bound minus the dual value for the lower bound
+        b_hat = condition_2.dual_value - condition_1.dual_value
+    else:
+        # For the non-regularized case, just get the dual value as before
+        b_hat = -condition_1.dual_value
+
+    return b_hat
