@@ -48,6 +48,6 @@ def recursively_estimate_multivariate_dual(
     if len(S) > 1:
         T_ = get_kronecker_function(S_current, W)
         return recursively_estimate_multivariate_dual(
-            S[1:],s[1:], T_, y[:,1:], np.concatenate([y_current.reshape(y_current.shape[0],1),X],axis=1), beta, algorithm=algorithm, algorithm_options=algorithm_options)    
+            S[1:],s[1:], T_, y[:,1:], np.concatenate([y_current.reshape(y_current.shape[0],1),X],axis=1), beta, algorithm=algorithm, algorithm_options=algorithm_options, regularization=regularization)    
     else:
         return beta
