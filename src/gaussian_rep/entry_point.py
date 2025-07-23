@@ -16,6 +16,7 @@ def recursively_estimate_multivariate_dual(
         algorithm=cp.SCS,
         algorithm_options={},
         regularization=None,
+        tol: float = 1e-05
 ):
     S = [S] if callable(S) else S
     s = [s] if callable(s) else s
@@ -42,7 +43,8 @@ def recursively_estimate_multivariate_dual(
         len(y_current),
         algorithm=algorithm,
         algorithm_options=algorithm_options,
-        regularization=regularization_procedure_current)
+        regularization=regularization_procedure_current,
+        tol=tol)
     beta.append(rslt)
 
     if len(S) > 1:
