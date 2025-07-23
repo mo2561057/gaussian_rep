@@ -181,7 +181,7 @@ def get_derivative_likelihood_function(
 
 
 
-def solve_dual_problem_with_cone(
+def solve_dual_problem(
     foc_gradient: Callable[[cp.Variable, cp.Variable], cp.Expression],
     n: int,
     algorithm: str = "ECOS",
