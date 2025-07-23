@@ -180,7 +180,6 @@ def get_derivative_likelihood_function(
     return get_derivative_objective_function(T, t, y, X)
 
 
-
 def solve_dual_problem(
     foc_gradient: Callable[[cp.Variable, cp.Variable], cp.Expression],
     n: int,
@@ -190,16 +189,15 @@ def solve_dual_problem(
 ):
     u = cp.Variable(n)
     v = cp.Variable(n)
-    t = cp.Variable(n)  # auxiliary variable for log(-v)
+    t = cp.Variable(n)  # auxiliary variable
 
-    # Exponential cone constraint: (x, y, z) in K_exp  iff  y * exp(x / y) <= z, y > 0
-    # To model log(-v) = t, we require: (-v, 1, exp(t)) ∈ K_exp
-    exp_cones = [cp.constraints.ExpCone(-v[i], 1.0, cp.exp(t[i])) for i in range(n)]
+    # Model log(-v) ≥ t using exponential cone: (t_i, 1, -v_i) ∈ K_exp
+    exp_cones = [cp.constraints.ExpCone(t[i], 1.0, -v[i]) for i in range(n)]
 
-    # Build your objective (equivalent to u^2 - log(-v))
+    # Objective: sum of u^2 - t (maximize lower bound on log(-v))
     dual_objective_expr = cp.sum(u ** 2 - t)
 
-    # Equality or regularized constraints
+    # Constraints
     if regularization is not None:
         condition_1 = foc_gradient(u, v) <= regularization
         condition_2 = foc_gradient(u, v) >= -regularization
@@ -208,14 +206,9 @@ def solve_dual_problem(
         condition_1 = foc_gradient(u, v) == 0
         constraints = [condition_1] + exp_cones
 
-    # Objective
-    objective = cp.Minimize(dual_objective_expr)
-    problem = cp.Problem(objective, constraints)
-
-    # Solve
+    problem = cp.Problem(cp.Minimize(dual_objective_expr), constraints)
     problem.solve(solver=algorithm, **algorithm_options)
 
-    # Output
     print("Objective value:", problem.value)
     print("Status:", problem.status)
     print("Primal variables:")
@@ -226,15 +219,11 @@ def solve_dual_problem(
         print("All values in v are safely negative.")
     else:
         print("WARNING: Some values in v are non-negative or near-zero!")
-        print("v values violating constraint:", v.value[v.value >= -1e-6])
+        print("Violating values:", v.value[v.value >= -1e-6])
 
-    # Return
     if regularization is not None:
-        # For the regularized case, we need to combine dual values from both constraints
-        # The dual value for the upper bound minus the dual value for the lower bound
         b_hat = condition_2.dual_value - condition_1.dual_value
     else:
-        # For the non-regularized case, just get the dual value as before
         b_hat = -condition_1.dual_value
 
     return b_hat
