@@ -229,8 +229,7 @@ def get_derivative_likelihood_function(
 #    return b_hat
 #
 
-def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarray], float], 
-                       foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
+def solve_dual_problem(foc_gradient : Callable[[np.ndarray, np.ndarray], np.ndarray],
                        n : int,
                        algorithm : str = "ECOS",
                        algorithm_options : dict = {"max_iters": 1000, "verbose": True},
