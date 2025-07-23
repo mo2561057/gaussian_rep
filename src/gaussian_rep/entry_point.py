@@ -29,7 +29,7 @@ def recursively_estimate_multivariate_dual(
 
     T = get_kronecker_function(S_current, W)
     t = get_kronecker_function(s_current, W)
-    dual_objective_function = get_dual_objective_function()
+    #dual_objective_function = get_dual_objective_function()
     dual_constraint = get_dual_constraint(T, t, y_current, X)
 
     if regularization is not None:
@@ -38,7 +38,6 @@ def recursively_estimate_multivariate_dual(
         regularization_procedure_current = None    
     
     rslt = solve_dual_problem(
-        dual_objective_function,
         dual_constraint,
         len(y_current),
         algorithm=algorithm,
