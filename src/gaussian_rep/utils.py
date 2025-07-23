@@ -199,7 +199,7 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
         constraints = [condition_1, condition_2, condition_3]
     else:    
         condition_1 = foc_gradient(u,v)==0
-        condition_2 = v <= -1e-08  # Ensure v is negative
+        condition_2 = v <= -1e-05  # Ensure v is negative
         constraints = [condition_1, condition_2]
     objective = cp.Minimize(dual_objective_function(u,v))
     problem = cp.Problem(objective, constraints)
@@ -208,6 +208,12 @@ def solve_dual_problem(dual_objective_function : Callable[[np.ndarray, np.ndarra
     print("Objective value:", problem.value)
     print("Status:", problem.status)
     print("Primal variables:", u.value, v.value)
+    if (v.value < 0).all():
+        print("All values in v are negative.")
+    else:
+        print("There are pos values in v.")
+        print("pos entries in v:", v.value[v.value >= 0])
+    
     print("Eval:",dual_objective_function(u, v).value)
     print("Constraint residual:", foc_gradient(u, v).value)
     if regularization is not None:

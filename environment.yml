@@ -12,7 +12,7 @@ dependencies:
 
   # Package dependencies
   - optimagic
-  - numpy
+  - numpy=2.3.1
   - scipy
   - pandas
   - statsmodels
